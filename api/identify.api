@@ -1,0 +1,62 @@
+syntax = "v1"
+
+info (
+	title: "Identity API"
+    desc: "User Authentication & Identity Service for eShop"
+	author: "ZChen470"
+	email: "384015408@qq.com"
+)
+
+type (
+	RegisterReq {
+		email string
+		password string
+		nickname string
+	}
+
+	LoginReq {
+		email string
+		password string
+	}
+
+	LoginResp {
+		accessToken string
+		expireAt string
+	}
+
+	UserProfile {
+		userId string
+		email string
+		nickname string
+		createdAt string
+	}
+
+	UpdateProfileReq {
+		UserId int64
+		nickname string
+	}
+
+	GetProfileReq {
+		userId int64
+	}
+)
+
+@server(
+    jwt: Auth
+    group: Identity
+    prefix: /identity/v1
+)
+
+service eshop-api {
+	@handler Register
+	post /register (RegisterReq) returns (CommonResp)
+
+	@handler Login
+	post /login (LoginReq) returns (LoginResp)
+
+	@handler GetProfile
+	get /me (GetProfileReq) returns (UserProfile)
+
+	@handler UpdateProfile
+	put /me (UpdateProfileReq) returns (CommonResp)
+}

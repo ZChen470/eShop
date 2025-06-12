@@ -1,0 +1,12 @@
+Name: identify.rpc
+ListenOn: 0.0.0.0:8082
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: identify.rpc
+
+DataSource: host=127.0.0.1 user=postgres password=zyy123456 dbname=eshop port=5432 sslmode=disable TimeZone=Asia/Shanghai
+
+Auth:
+  AccessSecret: "asd$%^#$$JGHGJ"
+  AccessExpire: 604800

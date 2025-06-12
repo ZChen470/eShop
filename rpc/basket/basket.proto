@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package basket;
+option go_package = "./basket";
+
+message CartItem {
+  int64 productId = 1;
+  string productName = 2;
+  double price = 3;
+  int32 quantity = 4;
+}
+
+message Cart {
+  int64 userId = 1;
+  repeated CartItem items = 2;
+  double totalPrice = 3;
+}
+
+message AddItemReq {
+  int32 productId = 1;
+  string productName = 2;
+  int32 quantity = 3;
+  double price = 4;
+}
+
+message UpdateItemReq {
+  int32 productId = 1;
+  int32 quantity = 2;
+}
+
+message DeleteItemReq {
+  int32 productId = 1;
+}
+
+message ClearCartReq {}
+
+message GetCartReq {
+}
+
+message GetCartResp {
+  Cart cart = 1;
+}
+
+message CommonResp {
+  string msg = 1;
+  int32 code = 2;
+}
+
+service Basket {
+  rpc GetCart(GetCartReq) returns (GetCartResp);
+  rpc AddItem(AddItemReq) returns (CommonResp);
+  rpc UpdateItem(UpdateItemReq) returns (CommonResp);
+  rpc DeleteItem(DeleteItemReq) returns (CommonResp);
+  rpc ClearCart(ClearCartReq) returns (CommonResp);
+}

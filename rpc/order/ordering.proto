@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package order;
+option go_package = "./order";
+
+message OrderItem {
+  int32 productId = 1;
+  string productName = 2;
+  double price = 3;
+  int32 quantity = 4;
+}
+
+message Order {
+  int32 orderId = 1;
+  int32 userId = 2;
+  repeated OrderItem items = 3;
+  double totalAmount = 4;
+  string status = 5;
+  string createAt = 6;
+  string updateAt = 7;
+}
+
+message OrderProfile {
+  int32 orderId = 1;
+  int32 userId = 2;
+  string status = 3;
+  repeated string productName = 5;
+  double totalAmount = 4;
+}
+
+message PlaceOrderReq {
+  repeated OrderItem items = 1;
+}
+
+message PlaceOrderResp {
+  int32 orderId = 1;
+}
+
+message GetOrderListReq {
+}
+
+message GetOrderListResp {
+  repeated OrderProfile orders = 1;
+}
+
+message GetOrderDetailReq {
+  int32 orderId = 1;
+}
+
+message GetOrderDetailResp {
+  Order order = 1;
+}
+
+message CancelOrderReq {
+  int32 orderId = 1;
+}
+
+message UpdateOrderStatusReq {
+  int32 orderId = 1;
+  string status = 2;
+}
+
+message CheckOutOrderReq {
+  int32 orderId = 1;
+}
+
+message CommonResp {
+  string msg = 1;
+  int32 code = 2;
+}
+
+service Ordering {
+  rpc PlaceOrder(PlaceOrderReq) returns (PlaceOrderResp);
+  rpc GetOrderList(GetOrderListReq) returns (GetOrderListResp);
+  rpc GetOrderDetail(GetOrderDetailReq) returns (GetOrderDetailResp);
+  rpc CancelOrder(CancelOrderReq) returns (CommonResp);
+  rpc UpdateOrderStatus(UpdateOrderStatusReq) returns (CommonResp);
+  rpc CheckOutOrder(CheckOutOrderReq) returns (CommonResp);
+}

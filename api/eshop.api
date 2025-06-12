@@ -1,0 +1,25 @@
+syntax = "v1"
+
+info (
+	title:  "eShop API Gateway"
+	desc:   "API Gateway for microservice-based eShop system"
+	author: "ZChen470"
+	email:  "384015408@qq.com"
+)
+
+type (
+	CommonResp {
+		code int32
+		msg  string
+	}
+)
+
+import (
+	"basket.api"
+	"catalog.api"
+	"ordering.api"
+	"identify.api"
+)
+
+service eshop-api { // 不需要定义接口，只用来统一导入其他服务的接口}
+

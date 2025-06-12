@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package catalog;
+option go_package = "./catalog";
+
+// 商品信息
+message Product {
+  int64 productId = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 stock = 5;
+}
+
+// 查询商品列表
+message GetProductsReq {
+    int32 page = 1;
+    int32 pageSize = 2;
+}
+message GetProductsResp {
+  repeated Product products = 1;
+  int32 total = 2; // 总数 用于前端确定分页页数
+}
+
+// 查询商品详情
+message GetProductDetailReq {
+  int64 productId = 1;
+}
+message GetProductDetailResp {
+  Product product = 1;
+}
+
+// 查询库存
+message GetInventoryReq {
+  int32 productId = 1;
+}
+message GetInventoryResp {
+  int32 productId = 1;
+  int32 stock = 2;
+}
+
+// 添加商品
+message CreateProductReq {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  int32 stock = 4;
+}
+message CreateProductResp {
+  int64 productId = 1;
+}
+
+// 更新商品
+message UpdateProductReq {
+  int64 productId = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 stock = 5;
+}
+message UpdateProductResp {
+  int64 productId = 1;
+}
+
+// 删除商品
+message DeleteProductReq {
+  int64 productId = 1;
+}
+message DeleteProductResp {
+  int64 productId = 1;
+}
+
+// 语义搜索
+message SemanticSearchReq {
+  string query = 1;
+}
+message SemanticSearchResp {
+  repeated Product products = 1;
+}
+
+// catalog 服务定义
+service Catalog {
+  rpc GetProducts(GetProductsReq) returns (GetProductsResp);
+  rpc GetProductDetail(GetProductDetailReq) returns (GetProductDetailResp);
+  rpc GetInventory(GetInventoryReq) returns (GetInventoryResp);
+  rpc CreateProduct(CreateProductReq) returns (CreateProductResp);
+  rpc UpdateProduct(UpdateProductReq) returns (UpdateProductResp);
+  rpc DeleteProduct(DeleteProductReq) returns (DeleteProductResp);
+  rpc SemanticSearch(SemanticSearchReq) returns (SemanticSearchResp);
+}

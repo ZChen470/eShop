@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package identity;
+option go_package = "./identify";
+
+// 注册请求
+message RegisterReq {
+  string email = 1;
+  string password = 2;
+  string nickname = 3;
+}
+
+// 登录请求
+message LoginReq {
+  string email = 1;
+  string password = 2;
+}
+
+// 登录响应
+message LoginResp {
+  string accessToken = 1;
+  string expireAt = 2;
+}
+
+// 用户信息
+message UserProfile {
+  int64 userId = 1;
+  string email = 2;
+  string nickname = 3;
+}
+
+// 更新用户资料
+message UpdateProfileReq {
+  int64 userId = 1;
+  string nickname = 2;
+}
+
+// 获取用户资料请求
+message GetProfileReq {
+  int64 userId = 1;
+}
+
+// 通用响应
+message CommonResp {
+  string msg = 1;
+  int32 code = 2;
+}
+
+
+service Identify{
+  rpc Register(RegisterReq) returns (CommonResp);
+  rpc Login(LoginReq) returns (LoginResp);
+  rpc GetProfile(GetProfileReq) returns (UserProfile);
+  rpc UpdateProfile(UpdateProfileReq) returns (CommonResp);
+}

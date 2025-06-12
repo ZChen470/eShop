@@ -1,0 +1,111 @@
+syntax = "v1"
+
+info (
+	title: "Catalog API"
+	desc: "Catalog Service API for eShop"
+	author: "ZChen470"
+	email: "384015408@qq.com"
+)
+
+type (
+	Product {
+		productId int64
+		name string
+		description string
+		price float64
+		stock int32
+	}
+	// 查询商品列表 分页
+	GetProductsReq {
+		page int32
+		pageSize int32
+	}
+
+	GetProductsResp {
+		products []Product
+		total int32
+	}
+
+	// 查询商品详情
+	GetProductDetailReq {
+		productId int64
+	}
+	GetProductDetailResp {
+		product Product
+	}
+
+	// 查询库存
+	GetInventoryReq {
+		productId int32
+	}
+	GetInventoryResp {
+		productId int32
+		stock int32
+	}
+
+	// 添加商品
+	CreateProductReq {
+		name string
+		description string
+		price float64
+		stock int32
+	}
+	CreateProductResp {
+		productId int64
+	}
+	// 更新商品
+	UpdateProductReq {
+		productId int64
+		name string
+		description string
+		price float64
+		stock int32
+	}
+	UpdateProductResp {
+		productId int64
+	}
+
+	DeleteProductReq {
+		productId int64
+	}
+	DeleteProductResp {
+		productId int64
+	}
+	// 语义搜索
+	SemanticSearchReq {
+		query string
+	}
+	SemanticSearchResp {
+		products []Product
+	}
+)
+
+@server (
+	jwt: Auth
+	group: Catalog
+	prefix: /catalog/v1
+)
+
+service eshop-api {
+	@handler GetProducts
+	get /products (GetProductsReq) returns (GetProductsResp)
+
+	@handler GetProductDetail
+	get /products/detail (GetProductDetailReq) returns (GetProductDetailResp)
+
+	@handler GetInventory
+    get /products/inventory (GetInventoryReq) returns (GetInventoryResp)
+
+	@handler SemanticSearch
+	post /products/search (SemanticSearchReq) returns (SemanticSearchResp)
+
+	// 管理商品 需要鉴权
+	@handler CreateProduct
+	post /products (CreateProductReq) returns (CreateProductResp)
+
+	@handler UpdateProduct
+	put /products (UpdateProductReq) returns (UpdateProductResp)
+
+	@handler DeleteProduct
+	delete /products (DeleteProductReq) returns (DeleteProductResp)
+}

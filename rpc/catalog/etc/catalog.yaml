@@ -1,0 +1,25 @@
+Name: catalog.rpc
+ListenOn: 0.0.0.0:8081
+
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: catalog.rpc
+
+DataSource: host=127.0.0.1 user=postgres password=zyy123456 dbname=eshop port=5432 sslmode=disable TimeZone=Asia/Shanghai
+
+# kq
+KqConsumerConf:
+  Name: KqConsumer
+  Brokers:
+    - 127.0.0.1:9092
+  Group: KqConsumer
+  Topic: inventory-check
+  Offset: first
+  Consumers: 8
+  Processors: 8
+
+KqPusherConf:
+  Brokers:
+    - 127.0.0.1:9092
+  Topic: check-result

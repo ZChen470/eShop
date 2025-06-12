@@ -1,0 +1,97 @@
+syntax = "v1"
+
+info (
+	title: "Ordering API"
+	desc: "Order Management Service for eShop"
+	author: "ZChen470"
+	email: "384015408@qq.com"
+)
+
+type (
+	OrderItem {
+		productId int32
+		productName string
+		price float64
+		quantity int32
+	}
+
+	Order {
+		orderId int32
+		userId int32
+		items []OrderItem
+		totalAmount float64
+		status string // e.g. Pending, Completed, Cancelled, Shipped
+		createAt string
+		updateAt string
+	}
+
+	OrderProfile {
+		orderId int32
+		userId int32
+		status string
+		productName []string
+		totalAmount float64
+	}
+
+	// 下单
+	PlaceOrderReq {
+		items []OrderItem
+	}
+	PlaceOrderResp {
+		orderId int32
+	}
+
+	// 获取用户订单
+	GetOrderListResp {
+		orders []OrderProfile
+	}
+	// 获取用户订单详情
+	GetOrderDetailReq {
+		orderId int32
+	}
+
+	GetOrderDetailResp {
+		order Order
+	}
+
+	CancelOrderReq {
+		orderId int32
+	}
+
+	UpdateOrderStatusReq {
+		orderId int32
+		status string
+	}
+
+	CheckOutOrderReq {
+		orderId int32
+	}
+)
+
+@server(
+    jwt: Auth
+    group: Ordering
+    prefix: /order/v1
+)
+
+service eshop-api {
+	@handler PlaceOrder
+	post /orders (PlaceOrderReq) returns (PlaceOrderResp)
+
+	@handler GetOrderList
+	get /orders returns (GetOrderListResp)
+
+	@handler GetOrderDetail
+	get /orders (GetOrderDetailReq) returns (GetOrderDetailResp)
+
+	@handler CancelOrder
+	post /orders/cancel (CancelOrderReq) returns (CommonResp)
+
+	// 供后台 order processor 异步调用
+	@handler UpdateOrderStatusReq
+	post /orders/update (UpdateOrderStatusReq) returns (CommonResp)
+
+	@handler CheckOutOrder
+	post /orders/checkout (CheckOutOrderReq) returns (CommonResp)
+	
+}
