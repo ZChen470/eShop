@@ -4,6 +4,8 @@ EShop, A application, demonstrates modern cloud-native practices including *micr
 
 This application follows a distributed architecture pattern where functionality is split into multiple autonomous services（自治服务） that communicate via APIs and message passing.（服务之间通过 API 和 消息传递进行通信）
 
+![eshop_architecture](D:\文档\学习\Golang\微服务\go-zero\eShop\eshop_architecture.png)
+
 ## Microservices Architecture 微服务架构
 
 | Service           | Description        | Database   | Communication Methods            |
@@ -249,3 +251,77 @@ Order 实体包含所有与订单相关的信息，包括商品、送货地址�
 ### Identity API
 
 它管理用户身份、处理身份验证流程，并颁发其他服务用于验证用户身份和授权的安全令牌。
+
+
+
+# 实施
+
+## catalog.api
+
+### ① 用户功能（暴露给 Gateway）
+
+| 功能         | 描述                     | 是否暴露到网关 |
+| ------------ | ------------------------ | -------------- |
+| 获取所有商品 | 展示商品列表             | ✅              |
+| 查询商品详情 | 根据商品 ID 获取详细信息 | ✅              |
+| 查询库存     | 查询某个商品当前库存     | ✅              |
+
+| 功能             | 描述                             | 是否暴露到网关    |
+| ---------------- | -------------------------------- | ----------------- |
+| 添加商品         | 添加新商品                       | ✅（需鉴权）       |
+| 修改商品         | 更新商品名称、描述、价格等信息   | ✅（需鉴权）       |
+| 删除商品         | 删除商品                         | ✅（需鉴权）       |
+| 扣减库存（内部） | 下单后调用，减少库存（RPC 调用） | ❌（RPC 内部调用） |
+| 回滚库存（内部） | 订单取消后恢复库存               | ❌（RPC 内部调用） |
+
+## basket.api
+
+| 功能             | 描述                   |
+| ---------------- | ---------------------- |
+| 添加商品到购物车 | 用户将商品添加到购物车 |
+| 获取购物车       | 查询用户当前购物车内容 |
+| 修改购物车项数量 | 更新某一商品的数量     |
+| 删除购物车项     | 删除购物车中的某一商品 |
+| 清空购物车       | 一键清空购物车         |
+| 支持 JWT 鉴权    | 所有接口默认开启鉴权   |
+
+## ordering.api
+
+| 功能          | 描述                                                 |
+| ------------- | ---------------------------------------------------- |
+| 创建订单      | 用户提交购物车后生成订单（异步通知 Order Processor） |
+| 查询订单列表  | 用户查询自己的所有订单                               |
+| 查询订单详情  | 用户查看某个订单的详细信息                           |
+| 取消订单      | 用户主动取消订单                                     |
+| 管理订单状态  | 后台异步更新订单状态（由 OrderProcessor 监听消息）   |
+| 支持 JWT 鉴权 | 所有接口默认开启鉴权                                 |
+
+用户提交订单 --> PENDING
+支付成功 --> PAID
+取消订单 --> CANCELLED
+商家发货 --> SHIPPED
+
+`placeOrder` 会将订单存入数据库后发送异步事件（通过 `go-queue`）给 `Order Processor`。
+
+`updateOrderStatus` 由 `Order Processor` 或 `Payment Processor` 监听事件后调用。
+
+所有订单都绑定 `userId`（从 JWT 中提取）。
+
+## identity.api
+
+| 功能                 | 描述                                |
+| -------------------- | ----------------------------------- |
+| 用户注册             | 用户通过邮箱和密码注册              |
+| 用户登录             | 用户凭账号密码登录，获取 JWT token  |
+| 获取当前用户信息     | 登录用户查看自己的信息              |
+| 用户登出（可选）     | 清除 refresh token 或客户端本地状态 |
+| 更新用户信息（可选） | 修改邮箱、昵称等                    |
+| 支持 JWT 鉴权        | 除注册和登录接口外，均需要登录鉴权  |
+
+`goctl api go -api eshop.api -dir . --style=goZero --jwt --jwt-auth "makabaka!123#"`
+
+购物篮成功创建订单后，rpc 删除订单
+
+订单支付成功事件：catalog 订阅 用于减少内存，order订阅用于 减少库存 rpc
+
+取消支付成功的订单 回滚内存 rpc
